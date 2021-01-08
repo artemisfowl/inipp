@@ -63,7 +63,9 @@ int Ini_parser::parse()
 		// ignore the lines which are empty or having ';' at the start of the line
 		// these lines with ';' at the start are comments
 		if (!(*t.begin() == ';') && !t.empty()) {
+			// for matching and finding sections
 			if (std::regex_search(t, m, std::regex(REGEX_SECTION))) {
+				Section section;
 				for (auto x : m) {
 					/*std::cout << "Length of matched substring : "
 						<< x.length() << " and length of entire string : "
@@ -71,6 +73,10 @@ int Ini_parser::parse()
 
 					if ((size_t)x.length() != t.length())
 						return MISFORMED_SECTION;
+					else {
+						section.set_name(x);
+						sections.push_back(section);
+					}
 				}
 			}
 		}
