@@ -18,8 +18,9 @@
 #define REGEX_OPTION "(?!\\[)[a-zA-Z0-9]+.=(?!\\])"
 #endif
 
-#ifndef REGEX_OPTION_NAME
-#define REGEX_OPTION_NAME "[a-zA-Z0-9]+."
+// this one will take the ending character as well, need to work on that one
+#ifndef REGEX_WORD
+#define REGEX_WORD "[a-zA-Z0-9]+"
 #endif
 
 #ifndef OPTION_DELIMITER
@@ -58,6 +59,7 @@ class Section
 		void set_option(Option option);
 		std::string get();
 		std::vector<Option> get_options();
+		void clear_options();
 };
 
 class Ini_parser
@@ -67,6 +69,11 @@ class Ini_parser
 		Ini_parser(std::string fp);
 		bool set_filepath(std::string fp);
 		int parse();
+
+		// this function would be returning the section names
+		std::vector<std::string> get_sections();
+		std::vector<std::string> get_options(std::string section);
+		std::string get_value(std::string section_name, std::string option_name);
 
 	private:
 		std::string fpath;

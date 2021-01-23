@@ -74,5 +74,18 @@ int main(int argc, char *argv[])
 	else
 		std::cout << "Parsing complete\n";
 
+	// check the sections that are parsed
+	auto sections= parser.get_sections();
+	std::cout << "Sections parsed :" << std::endl;
+	for (auto section : sections) {
+		std::cout << section << std::endl;
+
+		// check the options corresponding to each of the sections
+		auto options = parser.get_options(section);
+		for (auto option : options)
+			std::cout << "\t" << option << " : " << parser.get_value(section, option) << std::endl;
+	}
+
+
 	return 0;
 }

@@ -41,6 +41,11 @@ std::vector<Option> Section::get_options()
 	return this->options;
 }
 
+void Section::clear_options()
+{
+	this->options.clear();
+}
+
 /*
  * Option class
  */
@@ -121,13 +126,22 @@ int Ini_parser::parse()
 				if (insection) {
 					sections.push_back(section);
 					insection = false;
+
+					// need to clear the options
+					section.clear_options();
 				}
 				insection = true;
+				// clear the options part
 				for (auto x : m) {
 					if ((size_t)x.length() != t.length())
 						return MISFORMED_SECTION;
-					else
-						section.set_name(x);
+					else {
+						// just get the name from the square braces
+						std::string tmp{x};
+						std::regex_search(tmp, m, std::regex(REGEX_WORD));
+						for (auto sname : m)
+							section.set_name(sname);
+					}
 				}
 			} else if (std::regex_search(t, m, std::regex(REGEX_OPTION)) && insection) {
 				Option option;
@@ -135,9 +149,14 @@ int Ini_parser::parse()
 				for (auto x : m) {
 					std::string f{x};
 
-					std::regex_search(f, m, std::regex(REGEX_OPTION_NAME));
-					for (auto kn : m)
+					std::regex_search(f, m, std::regex(REGEX_WORD));
+					for (auto kn : m) {
 						key = kn;
+						if (*key.begin() == ' ')
+							key.erase(key.begin());
+						if (*key.end() == ' ')
+							key.erase(key.end());
+					}
 
 					/* now to get the value from the string */
 					std::size_t found = t.find_first_of(OPTION_DELIMITER);
@@ -155,17 +174,59 @@ int Ini_parser::parse()
 					/* put this key value pair inside the option object */
 					option.set(key, value);
 					section.set_option(option);
-					//sections.push_back(section);
 				}
 			}
-			// push the section in the list of sections
 		}
 	}
 
 	// push in the last section
+	auto options = section.get_options();
+	for (auto option : options)
+		std::cout << option.get_key() << " " << option.get_value() << std::endl;
 	sections.push_back(section);
+
 	i.close();
 	return 100;
+}
+
+std::vector<std::string> Ini_parser::get_sections()
+{
+	// this function would be returning the names of the sections in a vector
+	std::vector<std::string> result;
+
+	for (auto section : sections)
+		result.push_back(section.get());
+
+	return result;
+}
+
+std::vector<std::string> Ini_parser::get_options(std::string section)
+{
+	std::vector<std::string> result;
+	if (!section.empty()) {
+		for (auto s : sections)
+			if (s.get() == section)
+				for (auto option : s.get_options())
+					result.push_back(option.get_key());
+	}
+	return result;
+}
+
+std::string Ini_parser::get_value(std::string section_name,
+		std::string option_name)
+{
+	std::string result;
+	if (!section_name.empty() && !option_name.empty()) {
+		std::vector<Option> options;
+		for (auto section : sections)
+			if (section.get() == section_name)
+				options = section.get_options();
+
+		for (auto option : options)
+			if (option.get_key() == option_name)
+				result = option.get_value();
+	}
+	return result;
 }
 
 bool Ini_parser::chk_file_exists()
