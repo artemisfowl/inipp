@@ -28,7 +28,7 @@
 #endif
 
 // not sure how to handle the misformed section issue
-enum ErrorCode { FILE_NOT_FOUND, MISFORMED_SECTION };
+enum ErrorCode { FILE_NOT_FOUND, MISFORMED_SECTION, DUPLICATE_SECTION };
 
 class Option
 {

@@ -139,8 +139,13 @@ int Ini_parser::parse()
 						// just get the name from the square braces
 						std::string tmp{x};
 						std::regex_search(tmp, m, std::regex(REGEX_WORD));
-						for (auto sname : m)
+						for (auto sname : m) {
+							// check if the section already exists - if it does, throw an error and stop the parsing
+							for (auto member : sections)
+								if (member.get() == sname)
+									return DUPLICATE_SECTION;
 							section.set_name(sname);
+						}
 					}
 				}
 			} else if (std::regex_search(t, m, std::regex(REGEX_OPTION)) && insection) {
