@@ -67,12 +67,16 @@ int main(int argc, char *argv[])
 
 	// later will integrate this call in the param constructor itself
 	unsigned int r = parser.parse();
-	if (r == FILE_NOT_FOUND)
+	if (r == FILE_NOT_FOUND) {
 		std::cerr << "File not found in specified location\n";
-	else if (r == MISFORMED_SECTION)
+		return r;
+	} else if (r == MISFORMED_SECTION) {
 		std::cerr << "Improper section present in input file, kindly check\n";
-	else
-		std::cout << "Parsing complete\n";
+		return r;
+	} else if (r == DUPLICATE_SECTION) {
+		std::cerr << "Duplicate section present in input file, kindly check\n";
+		return r;
+	}
 
 	// check the sections that are parsed
 	auto sections= parser.get_sections();
@@ -85,7 +89,6 @@ int main(int argc, char *argv[])
 		for (auto option : options)
 			std::cout << "\t" << option << " : " << parser.get_value(section, option) << std::endl;
 	}
-
 
 	return 0;
 }
